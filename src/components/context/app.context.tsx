@@ -1,4 +1,6 @@
-import { createContext, useContext, useState } from "react";
+import { fetchAccountAPI } from "services/api";
+import { createContext, useContext, useEffect, useState } from "react";
+import { ScaleLoader } from "react-spinners";
 
 interface IAppContext {
      isAuthenticated: boolean,
@@ -16,14 +18,34 @@ type TProp = {
 }
 
 export const AppProvider = (props: TProp) => { 
-    const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-    const [user, setUser] = useState<IUser | null>(null)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [user, setUser] = useState<IUser | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchAccount = async () => {
+      const res = await fetchAccountAPI();
+      if(res.data) {
+        setUser(res.data.user)
+        setIsAuthenticated(true)
+      }
+      setIsLoading(false) 
+    }
+
+    fetchAccount();
+  }, [])
 
     return (
-    <CurrentAppContext.Provider value={{isAuthenticated, user, setIsAuthenticated, setUser, isLoading, setIsLoading}}>
-        {props.children}
-    </CurrentAppContext.Provider>
+      <>
+        {isLoading == false ?
+        <CurrentAppContext.Provider value={{isAuthenticated, user, setIsAuthenticated, setUser, isLoading, setIsLoading}}>
+            {props.children}
+        </CurrentAppContext.Provider>
+        :<div style={{position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)"}}>
+        <ScaleLoader />
+      </div>
+        }
+      </>
 )
 }
 

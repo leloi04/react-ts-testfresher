@@ -13,6 +13,11 @@ import HomePage from "pages/client/home";
 import { App } from 'antd';
 import { AppProvider } from "components/context/app.context";
 import ProtectedRoute from "components/auth/auth";
+import ManageBookPage from "pages/admin/manage.book";
+import DashBoardPage from "pages/admin/dashboard";
+import ManageOrderPage from "pages/admin/manage.order";
+import ManageUserPage from "pages/admin/manage.user";
+import LayoutAdmin from "components/layout/layout.admin";
 
   const router = createBrowserRouter([
     {
@@ -24,30 +29,62 @@ import ProtectedRoute from "components/auth/auth";
             element: <HomePage />
         },
         {
-            path: "/book",
+            path: "book",
             element: <BookPage />,
         },
         {
-          path: "/checkout",
+          path: "checkout",
           element: <ProtectedRoute>
             <div>checkout page</div>
           </ProtectedRoute>
           ,
         },
+      ]
+    },
+    {
+      path: "admin",
+      element: <LayoutAdmin/>,
+      children: [
         {
-          path: "/admin",
-          element: <ProtectedRoute>
-            <div>admin page</div>
-          </ProtectedRoute>
+          index: true,
+          element: (
+            <ProtectedRoute>
+              <DashBoardPage/>
+            </ProtectedRoute>
+          )
+        },
+        {
+          path: "book",
+          element: (
+            <ProtectedRoute>
+              <ManageBookPage />
+            </ProtectedRoute>
+          )
+        },
+        {
+          path: "order",
+          element: (
+            <ProtectedRoute>
+              <ManageOrderPage />
+            </ProtectedRoute>
+          )
+        },
+        {
+          path: "user",
+          element: (
+            <ProtectedRoute>
+              <ManageUserPage />
+            </ProtectedRoute>
+          )
         },
       ]
     },
     {
-        path: "/login",
+        path: "login",
         element: <LoginPage />,
     },
     {
-        path: "/register",
+        path: "register",
         element: <RegisterPage />,
     },
   ]);
