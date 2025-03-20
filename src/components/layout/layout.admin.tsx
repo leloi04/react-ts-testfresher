@@ -1,7 +1,8 @@
-import { Button, Layout, Menu, theme } from 'antd';
+import { Button, Layout, Menu, MenuProps, theme } from 'antd';
 import { useState } from 'react';
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { UserOutlined, BookOutlined, ShoppingCartOutlined, DashboardOutlined, MenuUnfoldOutlined, MenuFoldOutlined } from "@ant-design/icons";
+import { UserOutlined, BookOutlined, ShoppingCartOutlined, DashboardOutlined, MenuUnfoldOutlined, MenuFoldOutlined, UsergroupAddOutlined } from "@ant-design/icons";
+import ManageUserPage from '@/pages/admin/manage.user';
 
 const { Header, Sider, Content } = Layout;
 
@@ -11,24 +12,50 @@ const LayoutAdmin = () => {
     const {
       token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
-    console.log(location)
+
+    const items: MenuProps['items'] = [
+            {
+                label: (
+                  <Link to="/admin">Dashboard</Link>
+                  ),
+                  icon: <DashboardOutlined />,
+              key: "/admin",
+            },
+            {
+                label: (
+                  "Manage Users"
+                  ),
+                  icon: <UserOutlined />,
+                  key: '',
+              children: [
+                { key: '/admin/user',
+                  label: (
+                  <Link to="/admin/user">CRUD</Link>),
+                  icon: <UsergroupAddOutlined /> 
+                },
+                
+              ]
+            },
+            {
+                label: (
+                  <Link to="/admin/book">Manage Books</Link>
+                ),
+                icon: <BookOutlined />,
+              key: "/admin/book",
+            },
+            {
+              label: (
+                <Link to="/admin/order">Manage Orders</Link>
+              ),
+              icon: <ShoppingCartOutlined />,
+            key: "/admin/order",
+          },
+          ];
     return (
       <Layout style={{ minHeight: "100vh" }}>
-        <Sider trigger={null} collapsible collapsed={collapsed}>
-        <div style={{display: "flex" ,color: "white", justifyContent: "center", margin: "20px", fontSize: "16px"}}>Admin</div>
-          <Menu theme="dark" mode="vertical" defaultSelectedKeys={[location.pathname]}>
-            <Menu.Item key="/admin" icon={<DashboardOutlined />}>
-              <Link to="/admin">Dashboard</Link>
-            </Menu.Item>
-            <Menu.Item key="/admin/user" icon={<UserOutlined />}>
-              <Link to="/admin/user">Manage Users</Link>
-            </Menu.Item>
-            <Menu.Item key="/admin/book" icon={<BookOutlined />}>
-              <Link to="/admin/book">Manage Books</Link>
-            </Menu.Item>
-            <Menu.Item key="/admin/order" icon={<ShoppingCartOutlined />}>
-              <Link to="/admin/order">Manage Orders</Link>
-            </Menu.Item>
+        <Sider style={{backgroundColor: "white"}} trigger={null} collapsible collapsed={collapsed}>
+        <div style={{display: "flex" , justifyContent: "center", margin: "20px", fontSize: "16px"}}>Admin</div>
+          <Menu items={items} theme="light" mode="inline" defaultSelectedKeys={[location.pathname]}>
           </Menu>
         </Sider>
         <Layout>

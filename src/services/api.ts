@@ -24,10 +24,16 @@ const fetchAccountAPI = () => {
     })
 }
 
+const getUserAPI = (query: string) => {
+    const urlBackend = `/api/v1/user?${query}`;
+    return axios.get<IModalPaginate<IUserModal>>(urlBackend)
+}
+
 
 export {
     loginAPI,
     registerAPI,
     fetchAccountAPI,
-    logoutAPI
+    logoutAPI,
+    getUserAPI
 }

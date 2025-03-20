@@ -1,3 +1,4 @@
+import { logoutAPI } from "@/services/api";
 import { ShoppingCartOutlined, UserOutlined } from "@ant-design/icons";
 import { Avatar, Badge, Dropdown, Input, MenuProps } from "antd";
 import { Header } from "antd/es/layout/layout";
@@ -6,18 +7,21 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const AppHeader = () => {
-    const {user} = useCurrentApp();
+    const {user, setUser, setIsAuthenticated} = useCurrentApp();
     const [cartCount, setCartCount] = useState(10);
+    const navigation = useNavigate();
+
+    const handleLogout = async () => {
+      const res = await logoutAPI();
+      if(res.data ) {
+        setUser(null);
+        setIsAuthenticated(false);
+        localStorage.removeItem("access_token");
+      }
+
+    }
 
     const items: MenuProps['items'] = [
-        {
-          label: (
-            <Link to="/admin">
-                Trang quản trị
-            </Link>
-          ),
-          key: "dashboard",
-        },
         {
             label: (
                 <Link to="/">
@@ -35,14 +39,27 @@ const AppHeader = () => {
           key: "history",
         },
         {
-            label: (
-                <Link to="/logout">
-                    Đăng xuất
-                </Link>
-              ),
+            label: <label
+                onClick={() => handleLogout()}
+            >
+              Đăng xuất
+            </label>,
           key: "logout",
         },
       ];
+
+      if(user?.role === "ADMIN") {
+        items.unshift(
+          {
+            label: (
+              <Link to="/admin">
+                  Trang quản trị
+              </Link>
+            ),
+            key: "dashboard",
+          }
+        )
+      }
 
     return (
         <Header style={{ display: "flex", alignItems: "center", padding: "0 20px", background: "#fff", maxWidth: 1240, margin: "0 auto"}}>
@@ -56,9 +73,11 @@ const AppHeader = () => {
           <ShoppingCartOutlined style={{ fontSize: 24, marginRight: 20, cursor: "pointer" }} />
         </Badge>
         <Dropdown menu={{ items }} trigger={["click"]}>
-          <div style={{ display: "flex", alignItems: "center", cursor: "pointer", marginLeft: 40, width: 160 }}>
+          <div 
+          onClick={() => { if (!user) navigation("/login"); }}
+          style={{ display: "flex", alignItems: "center", cursor: "pointer", marginLeft: 40, width: 160 }}>
             <Avatar icon={<UserOutlined />} style={{ marginRight: 5 }} />
-            <span>{user?.role === "admin" ? "I'm Admin" : "I'm User"}</span>
+            <span>{user ? (user.role === "ADMIN" ? "Im' Admin" : "Im' User") : "Tài Khoản"}</span>
           </div>
         </Dropdown>
       </Header>
