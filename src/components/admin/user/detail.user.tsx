@@ -13,6 +13,7 @@ interface IProps {
 const ViewDataModal = (props: IProps) => {
     
     const {openViewDetail, setOpenViewDetail, setViewDataDetail, viewDataDetail} = props;
+    const urlAvatar = `${import.meta.env.VITE_BACKEND_URL}/images/avatar/${viewDataDetail?.avatar}`;
     const items: DescriptionsProps['items'] = [
         {
           label: 'UserName',
@@ -33,10 +34,14 @@ const ViewDataModal = (props: IProps) => {
           children: viewDataDetail?.phone,
         },
         {
-            label: "Quyền hạn",
-            span: 'filled', 
+            label: "Quyền hạn", 
             children: viewDataDetail?.role,
         },
+        {
+          label: "Avatar",
+          span: 'filled', 
+          children: <Avatar size={40} src={<img src={urlAvatar} />}/>,
+      },
         {
             label: 'Created At',
             children: dayjs(viewDataDetail?.createdAt).format(FORMAT_DATE),

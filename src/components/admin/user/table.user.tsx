@@ -1,18 +1,29 @@
-import { getUserAPI } from '@/services/api';
+import { deleteUserAPI, getUserAPI } from '@/services/api';
 import { dateRangeValid } from '@/services/helper';
 import { DeleteOutlined, EditOutlined, EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { ProTable, TableDropdown } from '@ant-design/pro-components';
-import { Button, Dropdown, Space, Tag } from 'antd';
+import { App, Button, Dropdown, message, Popconfirm, PopconfirmProps, Space, Tag } from 'antd';
 import { Color } from 'antd/es/color-picker';
 import { useRef, useState } from 'react';
 import { Avatar, Col, Divider, Drawer, List, Row } from 'antd'; 
 import ViewDataModal from './detail.user';
+import CreateUser from './create.user';
+import ImportUserFile from './import.user.file';
+import { data } from 'react-router-dom';
+import { CSVLink } from 'react-csv';
+import UpdateUser from './update.user';
 
 
 const TableUser = () => {
   const [openViewDetail, setOpenViewDetail] = useState<boolean>(false)
   const [viewDataDetail, setViewDataDetail] = useState<IUserModal | null>(null)
+  const [openModal, setOpenModal] = useState<boolean>(false)
+  const [openModalImportFile, setOpenModalImportFile] = useState<boolean>(false)
+  const [openModalUpdate, setOpenModalUpdate] = useState<boolean>(false)
+  const [openModalDelete, setOpenModalDelete] = useState<boolean>(false)
+  const { message } = App.useApp();
+
     
   type TSearch = {
       fullName: string,
@@ -28,6 +39,14 @@ const TableUser = () => {
         pages: 0,
         total: 0
     })
+    const [dataTable, setDataTable] = useState<IUserModal[]>([])
+    const [dataUser, setDataUser] = useState<IUserModal | null>(null)
+    const [idUser, setIdUser] = useState<string | null>(null)
+    const confirm: PopconfirmProps['onConfirm'] = async () => {
+      await deleteUserAPI(idUser!)
+      message.success("Xóa thành công user!")
+      refreshTable()
+    };
 
     const columns: ProColumns<IUserModal>[] = [
       {
@@ -80,17 +99,39 @@ const TableUser = () => {
                         style={{
                             cursor: "pointer"
                         }} 
+                        onClick={() => {
+                          setOpenModalUpdate(true);
+                          setDataUser(entity);
+                        }}
                     />
+                    <Popconfirm
+                      placement="leftTop"
+                      title="Xóa user!"
+                      description="Bạn có chắc là muốn xóa người này không ?"
+                      onConfirm={confirm}
+                      onCancel={() => setOpenModalDelete(false)}
+                      okText="Xóa"
+                      cancelText="Hủy"
+                  >
                     <DeleteOutlined 
                         style={{
                             cursor: "pointer"
                         }}
+                        onClick={async () => {
+                          setOpenModalDelete(true)
+                          setIdUser(entity._id)
+                        }}
                     />
+                  </Popconfirm>
                 </div>
             )
        },
       },
     ];
+
+    const refreshTable = () => {
+      actionRef.current?.reload();
+    }
 
   return (
     <>
@@ -114,12 +155,15 @@ const TableUser = () => {
             query += `&createdAt>=${createDateRange[0]}&createdAt<=${createDateRange[1]}`
         }
 
+        query += `&sort=-createdAt`
+
         if(sort && sort.createdAt) {
             query += `&sort=${sort.createdAt === 'ascend' ? "createdAt" : "-createdAt"}`
         }
         const res = await getUserAPI(query);
         if(res.data) {
             setMeta(res.data.meta)
+            setDataTable(res.data.result)
         }
         return ({
           data: res.data?.result,
@@ -145,10 +189,30 @@ const TableUser = () => {
       headerTitle="Table User"
       toolBarRender={() => [
         <Button
+        icon={<PlusOutlined />}
+        type="primary"
+      >
+        <CSVLink
+          data={dataTable}
+          filename='export-user.csv'
+        >
+            Export File
+        </CSVLink>
+      </Button>,
+      <Button
+      icon={<PlusOutlined />}
+      onClick={() => {
+        setOpenModalImportFile(true);
+      }}
+      type="primary"
+    >
+      Import File
+    </Button>,
+        <Button
           key="button"
           icon={<PlusOutlined />}
           onClick={() => {
-            actionRef.current?.reload();
+            setOpenModal(true);
           }}
           type="primary"
         >
@@ -158,11 +222,31 @@ const TableUser = () => {
       ]}
     />
 
+    <CreateUser 
+      openModal={openModal}
+      setOpenModal={setOpenModal}
+      refreshTable={refreshTable}
+    />
+
     <ViewDataModal 
       openViewDetail={openViewDetail}
       setOpenViewDetail={setOpenViewDetail}
       viewDataDetail={viewDataDetail}
       setViewDataDetail={setViewDataDetail}
+    />
+
+    <ImportUserFile 
+      openModalImportFile={openModalImportFile}
+      setOpenModalImportFile={setOpenModalImportFile}
+      refreshTable={refreshTable}
+    />
+
+    <UpdateUser
+      openModalUpdate={openModalUpdate}
+      setOpenModalUpdate={setOpenModalUpdate}
+      refreshTable={refreshTable}
+      dataUser={dataUser}
+      setDataUser={setDataUser}
     />
     </>
   );

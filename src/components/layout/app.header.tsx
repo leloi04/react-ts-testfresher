@@ -10,6 +10,7 @@ const AppHeader = () => {
     const {user, setUser, setIsAuthenticated} = useCurrentApp();
     const [cartCount, setCartCount] = useState(10);
     const navigation = useNavigate();
+    const urlAvatar = `${import.meta.env.VITE_BACKEND_URL}/images/avatar/${user?.avatar}`
 
     const handleLogout = async () => {
       const res = await logoutAPI();
@@ -76,7 +77,7 @@ const AppHeader = () => {
           <div 
           onClick={() => { if (!user) navigation("/login"); }}
           style={{ display: "flex", alignItems: "center", cursor: "pointer", marginLeft: 40, width: 160 }}>
-            <Avatar icon={<UserOutlined />} style={{ marginRight: 5 }} />
+            <Avatar style={{ marginRight: 5 }} src={<img src={urlAvatar} alt="avatar" />} />
             <span>{user ? (user.role === "ADMIN" ? "Im' Admin" : "Im' User") : "Tài Khoản"}</span>
           </div>
         </Dropdown>

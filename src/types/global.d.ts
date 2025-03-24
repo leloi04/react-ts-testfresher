@@ -59,4 +59,24 @@ declare global {
         createdAt: Date,
         updatedAt: Date,
     }
+
+    interface IResponseImport {
+        countSuccess: number,
+        countError: number,
+        detail: any
+    }
+
+    interface IBookModal {
+        _id: string,
+        thumbnail: string,
+        slider: string[],
+        mainText: string,
+        author: string,
+        price: number,
+        sold: number,
+        quantity: number,
+        category: string,
+        createdAt: Date,
+        updatedAt: Date,
+    }
 }
