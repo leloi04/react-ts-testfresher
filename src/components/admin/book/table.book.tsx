@@ -1,11 +1,13 @@
-import { getBookAPI, getUserAPI } from "@/services/api";
+import { deleteBook, getBookAPI, getUserAPI } from "@/services/api";
 import { dateRangeValid } from "@/services/helper";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { ActionType, ProColumns, ProTable } from "@ant-design/pro-components";
-import { Button } from "antd";
+import { App, Button, Popconfirm, PopconfirmProps } from "antd";
 import { useRef, useState } from "react";
 import { CSVLink } from "react-csv";
 import DetailBook from "./detail.book";
+import CreateBook from "./create.book";
+import UpdateBook from "./update.book";
 
 type TSearch = {
     mainText: string,
@@ -14,8 +16,12 @@ type TSearch = {
 
 const TableBook = () => {
     const [openViewDetail, setOpenViewDetail] = useState<boolean>(false)
-  const [viewDataDetail, setViewDataDetail] = useState<IBookModal | null>(null)
+    const [viewDataDetail, setViewDataDetail] = useState<IBookModal | null>(null)
+    const [openModal, setOpenModal] = useState<boolean>(false)
+    const [openModalUpdate, setOpenModalUpdate] = useState<boolean>(false)
+    const [idBook, setIdBook] = useState<string>("")
     const actionRef = useRef<ActionType | null>(null);
+    const { message } = App.useApp()
     const [meta, setMeta] = useState({
         current: 1,
         pageSize: 5,
@@ -23,7 +29,13 @@ const TableBook = () => {
         total: 0
     })
     const [dataTable, setDataTable] = useState<IBookModal[]>([])
-
+    const [dataUpdate, setDataUpdate] = useState<IBookModal | null>(null)
+    const [openModalDelete, setOpenModalDelete] = useState<boolean>(false)
+    const confirm: PopconfirmProps['onConfirm'] = async () => {
+        await deleteBook(idBook)
+        message.success("Xóa thành công book!")
+        refreshTable()
+      };
         
     const columns: ProColumns<IBookModal>[] = [
         {
@@ -86,13 +98,29 @@ const TableBook = () => {
                               cursor: "pointer"
                           }} 
                           onClick={() => {
+                            setOpenModalUpdate(true)
+                            setDataUpdate(entity)
                           }}
                       />
-                      <DeleteOutlined 
-                          style={{
-                              cursor: "pointer"
-                          }}
-                      />
+                    <Popconfirm
+                      placement="leftTop"
+                      title="Xóa book!"
+                      description="Bạn có chắc là muốn xóa cuốn sách này không ?"
+                      onConfirm={confirm}
+                      onCancel={() => setOpenModalDelete(false)}
+                      okText="Xóa"
+                      cancelText="Hủy"
+                  >
+                    <DeleteOutlined 
+                        style={{
+                            cursor: "pointer"
+                        }}
+                        onClick={async () => {
+                          setOpenModalDelete(true)
+                          setIdBook(entity._id)
+                        }}
+                    />
+                  </Popconfirm>
                   </div>
               )
          },
@@ -120,7 +148,7 @@ const TableBook = () => {
                         query += `&author=/${params.author}/i`
                     }
 
-                    query += `&sort=-updateAt`
+                    query += `&sort=-updatedAt`
 
                     if(sort && sort.updatedAt) {
                         query += `&sort=${sort.updatedAt === 'ascend' ? "updatedAt" : "-updatedAt"}`
@@ -176,6 +204,7 @@ const TableBook = () => {
                     key="button"
                     icon={<PlusOutlined />}
                     onClick={() => {
+                        setOpenModal(true)
                     }}
                     type="primary"
                     >
@@ -190,6 +219,20 @@ const TableBook = () => {
                     setOpenViewDetail={setOpenViewDetail}
                     viewDataDetail={viewDataDetail}
                     setViewDataDetail={setViewDataDetail}
+                />
+
+                <CreateBook 
+                    openModal={openModal}
+                    refreshTable={refreshTable}
+                    setOpenModal={setOpenModal}
+                />
+
+                <UpdateBook
+                    openModalUpdate={openModalUpdate}
+                    refreshTable={refreshTable}
+                    setOpenModalUpdate={setOpenModalUpdate}
+                    dataUpdate={dataUpdate}
+                    setDataUpdate={setDataUpdate}
                 />
         </>
     )

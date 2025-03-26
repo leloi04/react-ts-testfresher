@@ -62,6 +62,61 @@ const getBookAPI = (query: string) => {
     return axios.get<IModalPaginate<IBookModal>>(urlBackend)
 }
 
+const createBook = (
+    thumbnail: string, slider: string[], mainText: string,
+    author: string, price: number, sold: number, quantity: number, category: string) => {
+    const urlBackend = "/api/v1/book";
+    return axios.post<IBackendRes<IBookModal>>(urlBackend, {
+    thumbnail,
+    slider,
+    mainText,
+    author,
+    price,
+    sold,
+    quantity,
+    category})
+}
+
+const getCategoryAPI = () => {
+    const urlBackend = "/api/v1/database/category";
+    return axios.get<IBackendRes<string[]>>(urlBackend)
+}
+
+const updateFileAPI = (fileImg: any, folder: string) => {
+    const bodyFormData = new FormData();
+    bodyFormData.append('fileImg', fileImg);
+    return axios<IBackendRes<{
+        fileUploaded: string
+    }>>({
+        method: 'post',
+        url: "/api/v1/file/upload",
+        data: bodyFormData,
+        headers: {
+            "Content-Type": "multipart/formdata",
+            "upload-type": folder
+        }
+    })
+}
+
+const updateBook = (
+    thumbnail: string, slider: string[], mainText: string,
+    author: string, price: number, sold: number, quantity: number, category: string, _id: string) => {
+    const urlBackend = `/api/v1/book/${_id}`;
+    return axios.put<IBackendRes<IBookModal>>(urlBackend, {
+    thumbnail,
+    slider,
+    mainText,
+    author,
+    price,
+    sold,
+    quantity,
+    category})
+}
+
+const deleteBook = ( _id: string) => {
+    const urlBackend = `/api/v1/book/${_id}`;
+    return axios.delete<IBackendRes<IBookModal>>(urlBackend)}
+
 export {
     loginAPI,
     registerAPI,
@@ -72,5 +127,10 @@ export {
     bulkCreateUserAPI,
     updateUserAPI,
     deleteUserAPI,
-    getBookAPI
+    getBookAPI,
+    createBook,
+    getCategoryAPI,
+    updateFileAPI,
+    updateBook,
+    deleteBook
 }
