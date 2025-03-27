@@ -30,7 +30,7 @@ import enUS from "antd/locale/en_US";
             element: <HomePage />
         },
         {
-            path: "book",
+            path: "book/:id",
             element: <BookPage />,
         },
         {
