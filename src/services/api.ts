@@ -117,6 +117,15 @@ const deleteBook = ( _id: string) => {
     const urlBackend = `/api/v1/book/${_id}`;
     return axios.delete<IBackendRes<IBookModal>>(urlBackend)}
 
+const getDataBookAPI = (id: string) => {
+    const urlBackend = `/api/v1/book/${id}`;
+    return axios.get<IBackendRes<IBookModal>>(urlBackend,{
+        headers: {
+            delay: 3000,
+        }
+    })
+}
+
 export {
     loginAPI,
     registerAPI,
@@ -132,5 +141,6 @@ export {
     getCategoryAPI,
     updateFileAPI,
     updateBook,
-    deleteBook
+    deleteBook,
+    getDataBookAPI
 }

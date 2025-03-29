@@ -9,6 +9,8 @@ interface IAppContext {
      setUser: (v: IUser | null) => void,
      isLoading: boolean,
      setIsLoading: (v: boolean) => void,
+     carts: ICart[], 
+     setCarts: (v: ICart[]) => void
 }
 
 const CurrentAppContext = createContext<IAppContext | null>(null);
@@ -21,6 +23,7 @@ export const AppProvider = (props: TProp) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<IUser | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [carts, setCarts] = useState<ICart[]>([]);
 
   useEffect(() => {
     const fetchAccount = async () => {
@@ -29,7 +32,9 @@ export const AppProvider = (props: TProp) => {
         setUser(res.data.user)
         setIsAuthenticated(true)
       }
-      setIsLoading(false) 
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 3000);
     }
 
     fetchAccount();
@@ -38,7 +43,7 @@ export const AppProvider = (props: TProp) => {
     return (
       <>
         {isLoading == false ?
-        <CurrentAppContext.Provider value={{isAuthenticated, user, setIsAuthenticated, setUser, isLoading, setIsLoading}}>
+        <CurrentAppContext.Provider value={{isAuthenticated, user, setIsAuthenticated, setUser, isLoading, setIsLoading, carts, setCarts}}>
             {props.children}
         </CurrentAppContext.Provider>
         :<div style={{position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)"}}>

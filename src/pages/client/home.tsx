@@ -1,6 +1,6 @@
 import { getBookAPI, getCategoryAPI } from '@/services/api';
 import { FilterTwoTone, ReloadOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Col, Divider, Flex, Form, FormProps, GetProp, InputNumber, Pagination, Rate, Row, Tabs, TabsProps } from 'antd';
+import { Button, Checkbox, Col, Divider, Flex, Form, FormProps, GetProp, InputNumber, Pagination, Rate, Row, Spin, Tabs, TabsProps } from 'antd';
 import { useEffect, useState } from 'react';
 import './home.scss';
 import { useNavigate } from 'react-router-dom';
@@ -20,11 +20,10 @@ const HomePage = () => {
     }[]>([])
     const [listBook, setListBook] = useState<IBookModal[]>([])
     const [current, setCurrent] = useState<number>(1)
-    const [pageSize, setPageSize] = useState<number>(4)
+    const [pageSize, setPageSize] = useState<number>(8)
     const [total, setTotal] = useState<number>(0)
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [filter, setFilter] = useState<string>('')
-    const [queryCategory, setQueryCategory] = useState<string[]>([])
     const [sortQuery, setSortQuery] = useState<string>('sort=-sort')
     const [form] = Form.useForm();
 
@@ -62,7 +61,9 @@ const HomePage = () => {
           setTotal(res.data.meta.total)
         }
 
-        setIsLoading(false)
+        setTimeout(() => {
+          setIsLoading(false)
+        }, 1000)
     }
 
     const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
@@ -102,11 +103,6 @@ const HomePage = () => {
         children: <></>,
       },
     ];
-    
-
-    const onChange: GetProp<typeof Checkbox.Group, 'onChange'> = async (values: any) => {
-      setQueryCategory(values)
-    };
 
     const handleOnChange = (pagination: {current: number, pageSize: number}) => {
         if(pagination && pagination.current !== current){
@@ -155,7 +151,7 @@ const HomePage = () => {
                         name="category"
                         labelCol={{span: 24}}
                       >
-                        <Checkbox.Group  onChange={onChange}>
+                        <Checkbox.Group >
                         <Row>
                           {category.map((item, index) => {
                             return (
@@ -221,31 +217,37 @@ const HomePage = () => {
               <Row>
                 <Tabs defaultActiveKey="sort=-sort" items={items} onChange={onChangeTab} />
               </Row>
-              <Row gutter={[10, 10]}>
-                  {listBook.map((item, index) => {
-                    return (
-                      <Col onClick={() => nagivation(`/book/${item._id}`)} key={`index-${index}`} span={6}>
-                      <div className='book-item' style={{border: "1px solid #ccc", padding: "12px", cursor: 'pointer'}}> 
-                        <div className="thumbnail">
-                          <img style={{width: "100%"}} src={`${import.meta.env.VITE_BACKEND_URL}/images/book/${item.thumbnail}`} alt="" />
-                        </div>
-                        <div className="description" >
-                         <p>{item.mainText}</p>
-                        </div>
-                        <div className="price">
-                          {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price)}
-                        </div>
-                        <div className="rate">
-                        <Flex gap="middle" vertical>
-                            <Rate disabled defaultValue={5} />
-                        </Flex>
-                            <span className='sold'>Đã bán {item.sold}</span>
-                        </div>
-                      </div>
-                      </Col>
-                    )
-                  })}                
-              </Row>
+
+              <Flex gap="middle">
+                <Spin spinning={isLoading} tip="Loading..." size="large">
+                  <Row gutter={[10, 10]}>
+                      {listBook.map((item, index) => {
+                        return (
+                          <Col onClick={() => nagivation(`/book/${item._id}`)} key={`index-${index}`} span={6}>
+                          <div className='book-item' style={{border: "1px solid #ccc", padding: "12px", cursor: 'pointer'}}> 
+                            <div className="thumbnail">
+                              <img style={{width: "100%"}} src={`${import.meta.env.VITE_BACKEND_URL}/images/book/${item.thumbnail}`} alt="" />
+                            </div>
+                            <div className="description" >
+                            <p>{item.mainText}</p>
+                            </div>
+                            <div className="price">
+                              {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price)}
+                            </div>
+                            <div className="rate">
+                            <Flex gap="middle" vertical>
+                                <Rate disabled defaultValue={5} />
+                            </Flex>
+                                <span className='sold'>Đã bán {item.sold}</span>
+                            </div>
+                          </div>
+                          </Col>
+                        )
+                      })}                
+                  </Row>                 
+                </Spin>
+              </Flex>
+              
               <Row>
                 <Divider />
                 <div className="" style={{margin: "0 auto"}}>
