@@ -13,7 +13,7 @@ interface IProps {
 }
 
 const BookDetail = (props: IProps) => {
-    const { carts ,setCarts } = useCurrentApp();
+    const {setCarts } = useCurrentApp();
     const { dataBook } = props;
     const [imageGallery, setImageGallery] = useState<{
         original: string,
@@ -78,6 +78,8 @@ const BookDetail = (props: IProps) => {
                 detail: dataBook
             }]
             localStorage.setItem('carts', JSON.stringify(data))
+
+            setCarts(data as ICart[])
         }
     }
     return (

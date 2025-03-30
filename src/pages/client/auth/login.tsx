@@ -22,8 +22,6 @@ const LoginPage = () => {
     setIsSubmit(true);
     const {username, password } = values;
     const res = await loginAPI(username, password);
-    console.log("check >>> isAuthenticated:", isAuthenticated);
-    console.log(res)
     if (res.data) {
       setIsAuthenticated(true);
       setUser((res as any).data.user);
